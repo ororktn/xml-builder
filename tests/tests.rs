@@ -100,8 +100,7 @@ fn test_expand_empty_tags() {
     let mut writer: Vec<u8> = Vec::new();
     xml.generate(&mut writer).unwrap();
 
-    let expected =
-        "<?xml version=\"1.0\"?>\n<root>\n\t<element></element>\n</root>\n";
+    let expected = "<?xml version=\"1.0\"?>\n<root>\n\t<element></element>\n</root>\n";
     let res = std::str::from_utf8(&writer).unwrap();
 
     assert_eq!(res, expected, "Both values does not match...");
@@ -134,19 +133,31 @@ fn test_xml_version_1_1() {
 }
 
 #[test]
-#[should_panic]
-fn test_panic_child_for_text_element() {
-    let xml = XMLBuilder::new().build();
+fn test_complex_mixed_children() {
+    let mut xml = XMLBuilder::new().build();
 
-    let mut xml_child = XMLElement::new("panic");
+    let mut xml_child = XMLElement::new("mixed");
     xml_child
-        .add_text("This should panic right after this...".into())
+        .add_text("Let's start with a text".into())
         .unwrap();
+    xml_child.add_attribute("complexity", "much");
 
-    let xml_child2 = XMLElement::new("sorry");
+    let xml_child2 = XMLElement::new("element_then");
     xml_child.add_child(xml_child2).unwrap();
 
-    xml.generate(std::io::stdout()).unwrap();
+    xml.set_root_element(xml_child);
+
+    let mut writer: Vec<u8> = Vec::new();
+    xml.generate(&mut writer).unwrap();
+
+    let expected = "<?xml version=\"1.0\"?>
+<mixed complexity=\"much\">
+\tLet's start with a text
+\t<element_then />
+</mixed>\n";
+    let res = std::str::from_utf8(&writer).unwrap();
+
+    assert_eq!(res, expected, "Both values does not match...")
 }
 
 #[test]
@@ -174,8 +185,12 @@ fn test_complex_xml() {
 
     let expected = "<?xml version=\"1.1\" encoding=\"UTF-8\"?>
 <house rooms=\"2\">
-\t<room number=\"1\">This is room number 1</room>
-\t<room number=\"2\">This is room number 2</room>
+\t<room number=\"1\">
+\t\tThis is room number 1
+\t</room>
+\t<room number=\"2\">
+\t\tThis is room number 2
+\t</room>
 </house>\n";
     let res = std::str::from_utf8(&writer).unwrap();
 
@@ -210,8 +225,12 @@ fn test_complex_sorted_root_xml() {
 
     let expected = "<?xml version=\"1.1\" encoding=\"UTF-8\"?>
 <house rooms=\"2\">
-\t<room number=\"1\" size=\"27\">This is room number 1</room>
-\t<room number=\"2\" size=\"54\">This is room number 2</room>
+\t<room number=\"1\" size=\"27\">
+\t\tThis is room number 1
+\t</room>
+\t<room number=\"2\" size=\"54\">
+\t\tThis is room number 2
+\t</room>
 </house>\n";
     let res = std::str::from_utf8(&writer).unwrap();
 
@@ -251,8 +270,12 @@ fn test_complex_sorted_element_xml() {
 
     let expected = "<?xml version=\"1.1\" encoding=\"UTF-8\" standalone=\"yes\"?>
 <house rooms=\"2\">
-\t<room size=\"27\" city=\"Paris\" number=\"1\">This is room number 1</room>
-\t<room city=\"LA\" number=\"2\" size=\"54\">This is room number 2</room>
+\t<room size=\"27\" city=\"Paris\" number=\"1\">
+\t\tThis is room number 1
+\t</room>
+\t<room city=\"LA\" number=\"2\" size=\"54\">
+\t\tThis is room number 2
+\t</room>
 </house>\n";
 
     let res = std::str::from_utf8(&writer).unwrap();

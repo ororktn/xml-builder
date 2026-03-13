@@ -84,7 +84,7 @@ impl XML {
         write!(writer, r#"<?xml version="{}""#, self.version)?;
 
         if let Some(encoding) = self.encoding {
-            write!(writer, r#" encoding="{}""#,  encoding)?;
+            write!(writer, r#" encoding="{}""#, encoding)?;
         }
 
         if self.standalone.is_some() {

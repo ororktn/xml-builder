@@ -17,7 +17,7 @@ pub struct XMLElement {
     sort_attributes: Option<bool>,
 
     /// The content of this XML element.
-    content: XMLElementContent,
+    content: Option<Vec<XMLElementContent>>,
 }
 
 impl XMLElement {
@@ -31,7 +31,7 @@ impl XMLElement {
             name: name.into(),
             attributes: Vec::new(),
             sort_attributes: None,
-            content: XMLElementContent::Empty,
+            content: None,
         }
     }
 
@@ -64,16 +64,11 @@ impl XMLElement {
     /// * `element` - A XMLElement object to add as child
     pub fn add_child(&mut self, element: XMLElement) -> Result<()> {
         match self.content {
-            XMLElementContent::Empty => {
-                self.content = XMLElementContent::Elements(vec![element]);
+            None => {
+                self.content = Some(vec![XMLElementContent::Element(Box::new(element))]);
             }
-            XMLElementContent::Elements(ref mut e) => {
-                e.push(element);
-            }
-            XMLElementContent::Text(_) => {
-                return Err(XMLError::InsertError(
-                    "Cannot insert child inside an element with text".into(),
-                ))
+            Some(ref mut v) => {
+                v.push(XMLElementContent::Element(Box::new(element)));
             }
         };
 
@@ -89,13 +84,11 @@ impl XMLElement {
     /// * `text` - A string containing the text to add to the object
     pub fn add_text(&mut self, text: String) -> Result<()> {
         match self.content {
-            XMLElementContent::Empty => {
-                self.content = XMLElementContent::Text(text);
+            None => {
+                self.content = Some(vec![XMLElementContent::Text(text)]);
             }
-            _ => {
-                return Err(XMLError::InsertError(
-                    "Cannot insert text in a non-empty element".into(),
-                ))
+            Some(ref mut v) => {
+                v.push(XMLElementContent::Text(text));
             }
         };
 
@@ -181,7 +174,7 @@ impl XMLElement {
         let attributes = self.attributes_as_string(should_sort);
 
         match &self.content {
-            XMLElementContent::Empty => match should_expand_empty_tags {
+            None => match should_expand_empty_tags {
                 true => {
                     write!(
                         writer,
@@ -197,26 +190,27 @@ impl XMLElement {
                     )?;
                 }
             },
-            XMLElementContent::Elements(elements) => {
+            Some(v) => {
                 write!(writer, "{}<{}{}>{}", indent, self.name, attributes, suffix)?;
-                for elem in elements {
-                    elem.render_level(
-                        writer,
-                        level + 1,
-                        should_sort,
-                        should_indent,
-                        should_break_lines,
-                        should_expand_empty_tags,
-                    )?;
+                for content in v {
+                    let higher_indent = indent.clone() + if should_indent { "\t" } else { "" };
+                    match content {
+                        XMLElementContent::Element(element) => {
+                            element.render_level(
+                                writer,
+                                level + 1,
+                                should_sort,
+                                should_indent,
+                                should_break_lines,
+                                should_expand_empty_tags,
+                            )?;
+                        }
+                        XMLElementContent::Text(text) => {
+                            write!(writer, "{}{}{}", higher_indent, text, suffix)?;
+                        }
+                    };
                 }
                 write!(writer, "{}</{}>{}", indent, self.name, suffix)?;
-            }
-            XMLElementContent::Text(text) => {
-                write!(
-                    writer,
-                    "{}<{}{}>{}</{}>{}",
-                    indent, self.name, attributes, text, self.name, suffix
-                )?;
             }
         };
 
