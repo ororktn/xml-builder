@@ -1,6 +1,6 @@
 use std::io::Write;
 
-use crate::{escape_str, Result, XMLElementContent, XMLError};
+use crate::{escape_str, Result, XMLElementContent};
 
 /// Structure representing an XML element field.
 #[derive(Clone)]
@@ -43,6 +43,13 @@ impl XMLElement {
     /// Disables attributes sorting.
     pub fn disable_attributes_sorting(&mut self) {
         self.sort_attributes = Some(false);
+    }
+
+    /// Adds the given name/value attribute to the XMLElement.
+    ///
+    /// # Arguments
+    pub fn get_children_mut(&mut self) -> &mut Option<Vec<XMLElementContent>> {
+         &mut self.content
     }
 
     /// Adds the given name/value attribute to the XMLElement.
