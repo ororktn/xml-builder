@@ -108,7 +108,7 @@ impl XML {
         )?;
 
         for d in self.doctypes {
-            write!(writer, "<!DOCTYPE {name}>{suffix}", name = d.get_name())?;
+            write!(writer, "{d}{suffix}")?;
         }
 
         // And then XML elements if present...

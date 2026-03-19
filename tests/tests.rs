@@ -38,6 +38,47 @@ fn test_xml_doctypes() {
 }
 
 #[test]
+fn test_xml_doctypes_external_ids() {
+    let mut doctype1 = Doctype::new("HTML".to_string());
+    doctype1
+        .add_system_id("system.dtd".to_string())
+        .expect("We should be able to add a doctype system id");
+    let mut doctype2 = Doctype::new("HTML".to_string());
+    doctype2
+        .add_public_id(
+            "-//W3C//DTD HTML 4.01 Transitional//EN".to_string(),
+            "http://www.w3.org/TR/html4/loose.dtd".to_string(),
+        )
+        .expect("We should be able to add a doctype system id");
+    let xml = XMLBuilder::new()
+        .version(XMLVersion::XML1_1)
+        .add_doctype(doctype1)
+        .add_doctype(doctype2)
+        .build();
+
+    let mut writer: Vec<u8> = Vec::new();
+    xml.generate(&mut writer).unwrap();
+
+    let expected = r#"<?xml version="1.1"?>
+<!DOCTYPE HTML SYSTEM "system.dtd">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+"#;
+    let res = std::str::from_utf8(&writer).unwrap();
+
+    assert_eq!(res, expected, "Both values does not match...");
+}
+
+#[test]
+#[should_panic]
+fn test_xml_doctypes_external_id_uniqueness() {
+    let mut doctype = Doctype::new("HTML".to_string());
+    doctype
+        .add_system_id("system.dtd".to_string()).expect("This should not panic");
+    doctype
+        .add_system_id("other.dtd".to_string()).expect("Sould panic here")
+}
+
+#[test]
 fn test_xml_version() {
     let xml = XMLBuilder::new().version(XMLVersion::XML1_1).build();
 
