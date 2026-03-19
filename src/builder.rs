@@ -1,4 +1,4 @@
-use crate::{XML, XMLVersion};
+use crate::{Doctype, XML, XMLVersion};
 
 /// Builder structure used to generate a custom XML structure.
 pub struct XMLBuilder {
@@ -11,6 +11,9 @@ pub struct XMLBuilder {
     ///
     /// Defaults to `UTF-8`.
     encoding: Option<String>,
+
+    /// The list of given <!DOCTYPE>
+    doctypes: Vec<Doctype>,
 
     /// XML standalone attribute.
     ///
@@ -46,6 +49,7 @@ impl Default for XMLBuilder {
             version: XMLVersion::XML1_0,
             encoding: None,
             standalone: None,
+            doctypes: vec![],
             indent: true,
             sort_attributes: false,
             break_lines: true,
@@ -93,6 +97,18 @@ impl XMLBuilder {
         self
     }
 
+    /// Adds a doctype
+    ///
+    /// # Arguments
+    ///
+    /// `doctype` - The doctype object to add
+    #[must_use]
+    pub fn add_doctype(mut self, doctype: Doctype) -> Self {
+        self.doctypes.push(doctype);
+
+        self
+    }
+
     /// Sets the XML indentation.
     #[must_use]
     pub const fn indent(mut self, indent: bool) -> Self {
@@ -132,6 +148,7 @@ impl XMLBuilder {
             self.version,
             self.encoding,
             self.standalone,
+            self.doctypes,
             self.indent,
             self.sort_attributes,
             self.break_lines,

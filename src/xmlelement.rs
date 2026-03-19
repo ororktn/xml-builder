@@ -207,7 +207,7 @@ impl XMLElement {
                         indent, self.name, attributes, suffix
                     )?;
                 }
-            },
+            }
             XMLElementContent::Element(element) => {
                 write!(writer, "{}<{}{}>{}", indent, self.name, attributes, suffix)?;
                 element.render_level(
@@ -216,25 +216,26 @@ impl XMLElement {
                     should_sort,
                     should_indent,
                     should_break_lines,
-                    should_expand_empty_tags)?;
+                    should_expand_empty_tags,
+                )?;
                 write!(writer, "{}</{}>{}", indent, self.name, suffix)?;
-            },
+            }
             XMLElementContent::Text(text) => {
                 write!(
                     writer,
                     "{}<{}{}>{}</{}>{}",
                     indent, self.name, attributes, text, self.name, suffix
                 )?;
-            },
+            }
             XMLElementContent::Mixed(children) => {
                 let higher_indent = "\t".to_string() + &indent;
                 write!(writer, "{}<{}{}>{}", indent, self.name, attributes, suffix)?;
                 for content in children {
                     match content {
                         // Should be unreachable
-                        XMLElementContent::Empty => {},
+                        XMLElementContent::Empty => {}
                         // Should be unreachable
-                        XMLElementContent::Mixed(_) => {},
+                        XMLElementContent::Mixed(_) => {}
 
                         XMLElementContent::Element(element) => {
                             element.render_level(

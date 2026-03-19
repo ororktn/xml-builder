@@ -1,6 +1,6 @@
 use std::io::Write;
 
-use crate::{Result, XMLElement, XMLVersion};
+use crate::{Doctype, Result, XMLElement, XMLVersion};
 
 /// Structure representing a XML document.
 /// It must be used to create a XML document.
@@ -23,6 +23,9 @@ pub struct XML {
     ///
     /// Defaults to `None`
     standalone: Option<bool>,
+
+    /// The list of given <!DOCTYPE>
+    doctypes: Vec<Doctype>,
 
     /// Whether the XML attributes should be sorted or not.
     ///
@@ -53,6 +56,7 @@ impl XML {
         version: XMLVersion,
         encoding: Option<String>,
         standalone: Option<bool>,
+        doctypes: Vec<Doctype>,
         indent: bool,
         sort_attributes: bool,
         break_lines: bool,
@@ -62,6 +66,7 @@ impl XML {
             version,
             encoding,
             standalone,
+            doctypes,
             indent,
             sort_attributes,
             break_lines,
@@ -83,9 +88,10 @@ impl XML {
     ///
     /// Consumes the XML object.
     pub fn generate<W: Write>(self, mut writer: W) -> Result<()> {
+        let suffix = if self.break_lines { "\n" } else { "" };
         write!(
             writer,
-            r#"<?xml version="{}"{encoding}{standalone}?>"#,
+            r#"<?xml version="{}"{encoding}{standalone}?>{suffix}"#,
             self.version,
             encoding = self
                 .encoding
@@ -101,8 +107,8 @@ impl XML {
             }
         )?;
 
-        if self.break_lines {
-            writeln!(writer)?;
+        for d in self.doctypes {
+            write!(writer, "<!DOCTYPE {name}>{suffix}", name = d.get_name())?;
         }
 
         // And then XML elements if present...

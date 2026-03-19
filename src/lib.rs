@@ -4,6 +4,7 @@
 #![doc = include_str!("../README.md")]
 
 mod builder;
+mod doctype;
 mod utils;
 mod xml;
 mod xmlcontent;
@@ -12,6 +13,7 @@ mod xmlerror;
 mod xmlversion;
 
 pub use builder::XMLBuilder;
+pub use doctype::Doctype;
 pub use xml::XML;
 pub use xmlelement::XMLElement;
 pub use xmlerror::{Result, XMLError};

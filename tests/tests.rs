@@ -1,4 +1,4 @@
-use xml_builder::{XMLBuilder, XMLElement, XMLVersion};
+use xml_builder::{Doctype, XMLBuilder, XMLElement, XMLVersion};
 
 #[test]
 fn test_xml_default_creation() {
@@ -13,6 +13,28 @@ fn test_xml_file_write() {
 
     let mut writer: Vec<u8> = Vec::new();
     xml.generate(&mut writer).unwrap();
+}
+
+#[test]
+fn test_xml_doctypes() {
+    let doctype1 = Doctype::new("HTML".to_string());
+    let doctype2 = Doctype::new("something".to_string());
+    let xml = XMLBuilder::new()
+        .version(XMLVersion::XML1_1)
+        .add_doctype(doctype1)
+        .add_doctype(doctype2)
+        .build();
+
+    let mut writer: Vec<u8> = Vec::new();
+    xml.generate(&mut writer).unwrap();
+
+    let expected = r#"<?xml version="1.1"?>
+<!DOCTYPE HTML>
+<!DOCTYPE something>
+"#;
+    let res = std::str::from_utf8(&writer).unwrap();
+
+    assert_eq!(res, expected, "Both values does not match...");
 }
 
 #[test]
