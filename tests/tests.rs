@@ -49,8 +49,8 @@ fn test_indent() {
     let first_element_inside = XMLElement::new("indentation");
     let second_element_inside = XMLElement::new("indentation");
 
-    root.add_child(first_element_inside).unwrap();
-    root.add_child(second_element_inside).unwrap();
+    root.add_child(first_element_inside);
+    root.add_child(second_element_inside);
 
     xml.set_root_element(root);
 
@@ -74,7 +74,7 @@ fn test_line_breaks() {
     let mut root = XMLElement::new("root");
     let element = XMLElement::new("element");
 
-    root.add_child(element).unwrap();
+    root.add_child(element);
     xml.set_root_element(root);
 
     let mut writer: Vec<u8> = Vec::new();
@@ -93,7 +93,7 @@ fn test_expand_empty_tags() {
     let mut root = XMLElement::new("root");
     let element = XMLElement::new("element");
 
-    root.add_child(element).unwrap();
+    root.add_child(element);
 
     xml.set_root_element(root);
 
@@ -138,12 +138,11 @@ fn test_complex_mixed_children() {
 
     let mut xml_child = XMLElement::new("mixed");
     xml_child
-        .add_text("Let's start with a text".into())
-        .unwrap();
+        .add_text("Let's start with a text".into());
     xml_child.add_attribute("complexity", "much");
 
     let xml_child2 = XMLElement::new("element_then");
-    xml_child.add_child(xml_child2).unwrap();
+    xml_child.add_child(xml_child2);
 
     xml.set_root_element(xml_child);
 
@@ -173,9 +172,9 @@ fn test_complex_xml() {
     for i in 1..=2 {
         let mut room = XMLElement::new("room");
         room.add_attribute("number", &i.to_string());
-        room.add_text(format!("This is room number {i}")).unwrap();
+        room.add_text(format!("This is room number {i}"));
 
-        house.add_child(room).unwrap();
+        house.add_child(room);
     }
 
     xml.set_root_element(house);
@@ -209,9 +208,9 @@ fn test_complex_sorted_root_xml() {
         let mut room = XMLElement::new("room");
         room.add_attribute("size", &(i * 27).to_string());
         room.add_attribute("number", &i.to_string());
-        room.add_text(format!("This is room number {i}")).unwrap();
+        room.add_text(format!("This is room number {i}"));
 
-        house.add_child(room).unwrap();
+        house.add_child(room);
     }
 
     xml.set_root_element(house);
@@ -246,13 +245,13 @@ fn test_complex_sorted_element_xml() {
         room.add_attribute("size", &(i * 27).to_string());
         room.add_attribute("city", ["Paris", "LA"][i - 1]);
         room.add_attribute("number", &i.to_string());
-        room.add_text(format!("This is room number {i}")).unwrap();
+        room.add_text(format!("This is room number {i}"));
 
         if i % 2 == 0 {
             room.enable_attributes_sorting();
         }
 
-        house.add_child(room).unwrap();
+        house.add_child(room);
     }
 
     xml.set_root_element(house);

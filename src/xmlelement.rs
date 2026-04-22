@@ -61,7 +61,7 @@ impl XMLElement {
     /// # Arguments
     ///
     /// * `element` - A `XMLElement` object to add as child
-    pub fn add_child(&mut self, element: Self) -> Result<()> {
+    pub fn add_child(&mut self, element: Self) {
         match self.content {
             XMLElementContent::Empty => {
                 self.content = XMLElementContent::Element(Box::new(element))
@@ -82,8 +82,6 @@ impl XMLElement {
                 v.push(XMLElementContent::Element(Box::new(element)));
             }
         }
-
-        Ok(())
     }
 
     /// Adds text content to a `XMLElement` object.
@@ -93,7 +91,7 @@ impl XMLElement {
     /// # Arguments
     ///
     /// * `text` - A string containing the text to add to the object
-    pub fn add_text(&mut self, text: String) -> Result<()> {
+    pub fn add_text(&mut self, text: String) {
         match self.content {
             XMLElementContent::Empty => self.content = XMLElementContent::Text(text),
             XMLElementContent::Text(ref s) => {
@@ -112,8 +110,6 @@ impl XMLElement {
                 v.push(XMLElementContent::Text(text));
             }
         }
-
-        Ok(())
     }
 
     /// Internal method rendering attribute list to a String.
