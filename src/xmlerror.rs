@@ -6,8 +6,6 @@ pub type Result<T> = std::result::Result<T, XMLError>;
 
 /// Error type thrown by this crate
 pub enum XMLError {
-    /// Thrown when the given element cannot be inserted into the XML object tree.
-    InsertError(String),
     /// Thrown when the given `Writer` cannot be written to.
     IOError(String),
 }
@@ -21,7 +19,6 @@ impl From<std::io::Error> for XMLError {
 impl Debug for XMLError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::InsertError(e) => write!(f, "Error encountered during insertion: {e}"),
             Self::IOError(e) => write!(f, "Error encountered during write: {e}"),
         }
     }
